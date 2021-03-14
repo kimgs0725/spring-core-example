@@ -1,6 +1,7 @@
 package hello.core.scope;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -35,38 +36,18 @@ public class SingletonWithPrototypeTest1 {
 
         ClientBean clientBean2 = ac.getBean(ClientBean.class);
         int count2 = clientBean2.logic();
-        assertThat(count2).isEqualTo(2);
+        assertThat(count2).isEqualTo(1);
     }
 
     static class ClientBean {
 
-        private final PrototypeBean prototypeBean;  // PrototypeBean 0x01
-
         @Autowired
-        public ClientBean(PrototypeBean prototypeBean) {
-            this.prototypeBean = prototypeBean;
-        }
+        private ObjectProvider<PrototypeBean> prototypeBeanObjectProvider;
 
         int logic() {
+            PrototypeBean prototypeBean = prototypeBeanObjectProvider.getObject();
             prototypeBean.addCount();
-            int count = prototypeBean.getCount();
-            return count;
-        }
-    }
-
-    static class ClientBean2 {
-
-        private final PrototypeBean prototypeBean;  // PrototypeBean 0x02
-
-        @Autowired
-        public ClientBean2(PrototypeBean prototypeBean) {
-            this.prototypeBean = prototypeBean;
-        }
-
-        int logic() {
-            prototypeBean.addCount();
-            int count = prototypeBean.getCount();
-            return count;
+            return prototypeBean.getCount();
         }
     }
 
